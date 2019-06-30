@@ -31,6 +31,9 @@ func (a *App) setRouter() {
 	})
 
 	a.Router.Route("/post", func(r chi.Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			handler.GetAllPost(w, r, a.Db)
+		})
 		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 			handler.CreatePost(w, r, a.Db, a.Sse)
 		})

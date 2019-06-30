@@ -41,6 +41,18 @@ func CreatePost(w http.ResponseWriter, r *http.Request, db *gorm.DB, s *sse.Serv
 	})
 }
 
+//GetAllPost get all post
+func GetAllPost(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+	posts := []model.Post{}
+
+	if err := db.Order("id DESC").Find(&posts).Error; err != nil {
+		RespondError(w, http.StatusInternalServerError, "internal server error")
+		return 		
+	}
+
+	RespondJSON(w, http.StatusOK, posts)
+}
+
 //GetPost get single post
 func GetPost(w http.ResponseWriter, r *http.Request, db *gorm.DB, s *sse.Server) {
 	postID := chi.URLParam(r, "PostID")
