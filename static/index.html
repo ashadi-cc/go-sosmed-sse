@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSE Examples</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    
+</head>
+<body>
+    <div class="container" style="margin-top: 40px">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Input token" id="token">
+                </div>
+            </div>
+        </div>
+        <h1>Messages</h1>
+        <hr>
+        <div class="row">
+            <div class="col-md-12" id="message">
+
+            </div>
+        </div>
+    </div>
+    <script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $('#token').keyup(function(e) {
+            if (e.which == 13 && $(this).val()) {
+                var token = $(this).val();
+                var e1 = new EventSource(`/events/post?token=${token}`)
+
+                $('#message').html("")
+                e1.onmessage = function(event) {
+                    v = $('#message').html()
+                    msg = `${v} <p>${event.data}<p>`
+                    $('#message').html(msg)
+                };
+                e1.onopen = function(event) {
+                    console.log('open')
+                };
+                e1.onerror = function(event) {
+                    $('#message').html("Error SSE")
+                };
+            }
+        })
+
+    </script>
+</body>
+</html>
