@@ -52,8 +52,6 @@ func (a *App) setRouter() {
 
 	//example listen event 
 	a.Router.Handle("/", http.FileServer(http.Dir("./static")))
-	mdware.AddNoAuthRoute("/")
-
 }
 
 //Initalize router and SSE

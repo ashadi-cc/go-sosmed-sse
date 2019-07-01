@@ -1,7 +1,6 @@
 package mdware
 
 import (
-	"log"
 	"context"
 	"fmt"
 	"sc-app/handler"
@@ -10,23 +9,31 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-//NoAuth router with no need auth
-var NoAuth = map[string]string {"/register": "noauth", "/login": "noauth"}
 
-func AddNoAuthRoute(path string) {
-	NoAuth[path] = "noauth"
+//ProtectedAuth route
+var ProtectedAuth = []string{"/post/*", "/events/*"}
+
+func protectedRoute(path string) bool {
+	for _, val := range ProtectedAuth {
+		if strings.Contains(val, "/*") {
+			val = strings.ReplaceAll(val, "/*", "")
+			if path != strings.TrimPrefix(path, val) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 //JWTAuth auth JWT
 func JWTAuth(next http.Handler) http.Handler {
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		if _, ok := NoAuth[path]; ok {
-			log.Println("No auth", path)
+
+		if p := protectedRoute(path); !p {
 			next.ServeHTTP(w, r)
 			return
-		} 
+		}
 
 		//check token here
 		authHeader := r.Header.Get("Authorization")
