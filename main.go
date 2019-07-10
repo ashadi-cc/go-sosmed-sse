@@ -18,7 +18,8 @@ func main() {
 	}
 	config := config.GetConfig()
 
-	dbURI := fmt.Sprintf("host=localhost port=%s user=%s dbname=%s password=%s",
+	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		config.DB.Host,
 		config.DB.Port,
 		config.DB.Username,
 		config.DB.Name,
