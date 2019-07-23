@@ -9,6 +9,11 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
+type responseToken struct {
+	Token string `json:"token"`
+	ExpiredAt int64 `json:"expired_at"`
+}
+
 //Login router
 func Login(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	user := model.User{}
@@ -25,10 +30,11 @@ func Login(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 		return 
 	}
 
+	expiredAt := time.Now().Add(LOGIN_EXPIRATION_DURATION).Unix()
 	claims := model.MyClaims{
 		StandardClaims: jwt.StandardClaims {
 			Issuer: APPLICATION_NAME,
-			ExpiresAt: time.Now().Add(LOGIN_EXPIRATION_DURATION).Unix(),
+			ExpiresAt: expiredAt,
 		}, 
 		Email: user.Email,
 		ID: user.ID,
@@ -45,8 +51,12 @@ func Login(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 		RespondError(w, http.StatusBadRequest, err.Error())
 	}
 
-	payload := map[string]string{"token": signedToken}
-
+	//payload := map[string]string{"token": signedToken}
+	payload := responseToken {
+		Token: signedToken,
+		ExpiredAt: expiredAt,
+	}
+	
 	RespondJSON(w, http.StatusOK, payload)
 
 }
