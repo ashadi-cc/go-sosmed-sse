@@ -65,7 +65,7 @@ func TestRegister(t *testing.T) {
 
 	response := executeRequest(req)
 
-	assert.Equal(t, http.StatusCreated, response.Code)
+	assert.Equal(t, http.StatusCreated, response.Code, string(response.Body.Bytes()))
 
 	json.Unmarshal(response.Body.Bytes(), &user)
 	assert.Equal(t, uint(1), user.ID)
@@ -85,7 +85,7 @@ func TestLogin(t *testing.T) {
 
 	response := executeRequest(req)
 
-	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, http.StatusOK, response.Code, string(response.Body.Bytes()))
 
 	responseToken := handler.ResponseToken{}
 
