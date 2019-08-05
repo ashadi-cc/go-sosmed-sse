@@ -1,6 +1,8 @@
 package model
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 //DbMigrate db migration
 func DbMigrate(db *gorm.DB) *gorm.DB {

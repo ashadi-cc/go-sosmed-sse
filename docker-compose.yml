@@ -5,7 +5,7 @@ services:
     env_file: 
       - .env
     ports: 
-      - "5433:5432"
+      - "5432:5432"
     volumes: 
       - ssedata:/var/lib/postgresql/data
   pgadmin:
@@ -16,6 +16,21 @@ services:
       - PHP_PG_ADMIN_SERVER_DEFAULT_DB=mydb
     ports: 
       - "3001:80"
+  # app:
+  #   build: 
+  #     dockerfile: Dockerfile
+  #     context: .
+  #   volumes: 
+  #     - .:/app
+  #   ports: 
+  #     - "3000:3000"
+  #   working_dir: /app
+  #   depends_on: 
+  #     - db
+  #   env_file: 
+  #     - .env
+  #   # command: ["dockerize","-wait", "tcp://db:5432", "-timeout=60s", '/bin/ash','-c', 'CompileDaemon -log-prefix=false -build="go build -o /bin/app-go main.go" -command="/bin/app-go"']
+  #   command: ["dockerize","-wait", "tcp://db:5432", "-timeout=60s", '/bin/ash','-c', 'go run main.go']
 
 volumes: 
   ssedata:

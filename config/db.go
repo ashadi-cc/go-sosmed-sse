@@ -1,7 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"os"
+
+	"github.com/jinzhu/gorm"
 )
 
 //DBConfig struct
@@ -29,10 +32,24 @@ func GetConfig() *Config {
 			Password: os.Getenv("POSTGRES_PASSWORD"),
 			Name:     os.Getenv("POSTGRES_DB"),
 			Port:     os.Getenv("DB_PORT"),
-			Host:	  os.Getenv("DB_HOST"),
+			Host:     os.Getenv("DB_HOST"),
 			Charset:  "utf8",
 		},
 	}
 
 	return &config
+}
+
+//ConnectDB connect to database
+func ConnectDB() (db *gorm.DB, err error) {
+	config := GetConfig()
+	dbURI := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		config.DB.Host,
+		config.DB.Port,
+		config.DB.Username,
+		config.DB.Name,
+		config.DB.Password)
+	db, err = gorm.Open(config.DB.Dialect, dbURI)
+
+	return db, err
 }

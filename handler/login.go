@@ -1,17 +1,19 @@
-package handler 
+package handler
 
 import (
-	"time"
-	"github.com/jinzhu/gorm"
+	"encoding/json"
 	"net/http"
 	"sc-app/model"
-	"encoding/json"
+	"sc-app/repo"
+	"time"
+
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/jinzhu/gorm"
 )
 
-type responseToken struct {
-	Token string `json:"token"`
-	ExpiredAt int64 `json:"expired_at"`
+type ResponseToken struct {
+	Token     string `json:"token"`
+	ExpiredAt int64  `json:"expired_at"`
 }
 
 //Login router
@@ -23,25 +25,27 @@ func Login(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 		RespondError(w, http.StatusBadRequest, "Payload error")
 		return
 	}
-	defer r.Body.Close() 
+	defer r.Body.Close()
 
-	if err := db.Where("email = ? AND password = ?", user.Email, user.Password).First(&user).Error; err != nil {
-		RespondError(w, http.StatusBadRequest, "user not found")
-		return 
+	repo := &repo.UserRepo{Db: db}
+
+	if err := repo.Login(&user); err != nil {
+		RespondError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	expiredAt := time.Now().Add(LOGIN_EXPIRATION_DURATION).Unix()
 	claims := model.MyClaims{
-		StandardClaims: jwt.StandardClaims {
-			Issuer: APPLICATION_NAME,
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    APPLICATION_NAME,
 			ExpiresAt: expiredAt,
-		}, 
+		},
 		Email: user.Email,
-		ID: user.ID,
+		ID:    user.ID,
 	}
 
 	token := jwt.NewWithClaims(
-		JWT_SIGNING_METHOD, 
+		JWT_SIGNING_METHOD,
 		claims,
 	)
 
@@ -52,11 +56,11 @@ func Login(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	}
 
 	//payload := map[string]string{"token": signedToken}
-	payload := responseToken {
-		Token: signedToken,
+	payload := ResponseToken{
+		Token:     signedToken,
 		ExpiredAt: expiredAt,
 	}
-	
+
 	RespondJSON(w, http.StatusOK, payload)
 
 }

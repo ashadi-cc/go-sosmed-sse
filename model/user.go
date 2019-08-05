@@ -5,8 +5,8 @@ import (
 )
 
 type BaseUser struct {
-	Email string `json:"email" gorm:"unique_index"`
-	Password string `json:"password"`
+	Email    string `json:"email" gorm:"unique_index" valid:"email,required"`
+	Password string `json:"password" gorm:"type:text" valid:"required"`
 }
 
 type User struct {
@@ -16,6 +16,6 @@ type User struct {
 
 type MyClaims struct {
 	jwt.StandardClaims
-	ID uint `json:"id"`
+	ID    uint   `json:"id"`
 	Email string `json:"email"`
 }
