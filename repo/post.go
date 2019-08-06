@@ -41,9 +41,12 @@ func (p *PostRepo) Update(post *model.Post) error {
 		return err
 	}
 
-	if _, err := p.FindByID(post.ID); err != nil {
+	foundPost, err := p.FindByID(post.ID)
+	if err != nil {
 		return err
 	}
+
+	post.UserID = foundPost.UserID
 
 	return p.Db.Save(post).Error
 }

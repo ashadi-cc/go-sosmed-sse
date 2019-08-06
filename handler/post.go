@@ -88,11 +88,6 @@ func UpdatePost(w http.ResponseWriter, r *http.Request, db *gorm.DB, s *sse.Serv
 	id, _ := strconv.ParseUint(postID, 10, 32)
 	post.ID = uint(id)
 
-	userInfo := r.Context().Value(UserInfo).(jwt.MapClaims)
-	uid, _ := strconv.ParseInt(fmt.Sprintf("%v", userInfo["id"]), 10, 32)
-
-	post.UserID = uint(uid)
-
 	if err := repo.Update(&post); err != nil {
 		RespondError(w, http.StatusInternalServerError, err.Error())
 		return

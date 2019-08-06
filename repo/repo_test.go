@@ -191,7 +191,7 @@ func TestFindPostByID(t *testing.T) {
 
 func TestUpdatePost(t *testing.T) {
 	p := &PostRepo{Db: DB}
-	post := model.Post{UserID: 1}
+	post := model.Post{}
 	post.ID, post.Title, post.Body = 1, "abc", "def"
 
 	if err := p.Update(&post); err != nil {
