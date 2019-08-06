@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -44,7 +45,7 @@ func TestMain(m *testing.M) {
 	}
 
 	//drop table
-	App.Db.DropTableIfExists(&model.User{}, &model.Post{})
+	App.Db.DropTableIfExists(&model.Post{}, &model.User{})
 
 	App.Initalize()
 
@@ -54,7 +55,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestRegister(t *testing.T) {
-	user := model.User{}
+	user := model.Login{}
 	user.Email = "ashadi.cc@gmail.com"
 	user.Password = "123456"
 	payload, _ := json.Marshal(user)
@@ -67,14 +68,15 @@ func TestRegister(t *testing.T) {
 
 	assert.Equal(t, http.StatusCreated, response.Code, string(response.Body.Bytes()))
 
-	json.Unmarshal(response.Body.Bytes(), &user)
-	assert.Equal(t, uint(1), user.ID)
-	assert.Equal(t, "", user.Password)
+	userCreated := model.User{}
+	json.Unmarshal(response.Body.Bytes(), &userCreated)
+	assert.Equal(t, uint(1), userCreated.ID)
+	assert.Equal(t, "", userCreated.Password)
 
 }
 
 func TestLogin(t *testing.T) {
-	user := model.User{}
+	user := model.Login{}
 	user.Email = "ashadi.cc@gmail.com"
 	user.Password = "123456"
 	payload, _ := json.Marshal(user)
@@ -95,4 +97,78 @@ func TestLogin(t *testing.T) {
 	assert.NotEmpty(t, responseToken.ExpiredAt)
 
 	Token = responseToken.Token
+}
+
+func TestCreatePost(t *testing.T) {
+	post := model.Post{}
+	post.Title, post.Body = "Sumanto", "Sujono"
+
+	payload, _ := json.Marshal(post)
+
+	req, err := http.NewRequest("POST", "/post", bytes.NewBuffer(payload))
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", Token))
+
+	assert.Equal(t, nil, err)
+
+	response := executeRequest(req)
+
+	assert.Equal(t, http.StatusCreated, response.Code, string(response.Body.Bytes()))
+}
+
+func TestGetAllPost(t *testing.T) {
+	req, err := http.NewRequest("GET", "/post", nil)
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", Token))
+
+	assert.Equal(t, nil, err)
+
+	response := executeRequest(req)
+
+	assert.Equal(t, http.StatusOK, response.Code, string(response.Body.Bytes()))
+
+	assert.NotEqual(t, "[]", string(response.Body.Bytes()))
+}
+
+func TestFindPost(t *testing.T) {
+	req, err := http.NewRequest("GET", "/post/1", nil)
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", Token))
+
+	assert.Equal(t, nil, err)
+
+	response := executeRequest(req)
+
+	assert.Equal(t, http.StatusOK, response.Code, string(response.Body.Bytes()))
+
+	assert.NotEqual(t, "[]", string(response.Body.Bytes()))
+}
+
+func TestUpdatePost(t *testing.T) {
+	post := model.Post{}
+	post.Title, post.Body = "mata", "hati"
+
+	payload, _ := json.Marshal(post)
+
+	req, err := http.NewRequest("PUT", "/post/1", bytes.NewBuffer(payload))
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", Token))
+
+	assert.Equal(t, nil, err)
+
+	response := executeRequest(req)
+
+	assert.Equal(t, http.StatusOK, response.Code, string(response.Body.Bytes()))
+}
+
+func TestDeletePost(t *testing.T) {
+	req, err := http.NewRequest("DELETE", "/post/1", nil)
+
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", Token))
+
+	assert.Equal(t, nil, err)
+
+	response := executeRequest(req)
+
+	assert.Equal(t, http.StatusOK, response.Code, string(response.Body.Bytes()))
 }

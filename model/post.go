@@ -2,7 +2,8 @@ package model
 
 type Post struct {
 	CommonModel
-	UserId uint `json:"-"`
-	Title string `json:"title"`
-	Body string `json:"body" gorm:"type:text"`
+	User   User   `gorm:"association_foreignkey:UserID" valid:"-" json:"-"`
+	Title  string `json:"title" valid:"required"`
+	Body   string `json:"body" gorm:"type:text" valid:"required"`
+	UserID uint   `valid:"required" json:"-"`
 }

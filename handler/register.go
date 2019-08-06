@@ -11,7 +11,7 @@ import (
 
 //Register New User
 func Register(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
-	user := model.User{}
+	user := model.Login{}
 	decoder := json.NewDecoder(r.Body)
 
 	if err := decoder.Decode(&user); err != nil {
@@ -21,12 +21,12 @@ func Register(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	defer r.Body.Close()
 
 	repo := &repo.UserRepo{Db: db}
-	if err := repo.Create(&user); err != nil {
+	userCreated := model.User{}
+	userCreated.Email, userCreated.Password = user.Email, user.Password
+	if err := repo.Create(&userCreated); err != nil {
 		RespondError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	//reset password
-	user.Password = ""
-	RespondJSON(w, http.StatusCreated, user)
+	RespondJSON(w, http.StatusCreated, userCreated)
 }

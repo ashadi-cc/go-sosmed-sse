@@ -18,14 +18,17 @@ type ResponseToken struct {
 
 //Login router
 func Login(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
-	user := model.User{}
+	request := model.Login{}
 	decoder := json.NewDecoder(r.Body)
 
-	if err := decoder.Decode(&user); err != nil {
+	if err := decoder.Decode(&request); err != nil {
 		RespondError(w, http.StatusBadRequest, "Payload error")
 		return
 	}
 	defer r.Body.Close()
+
+	user := model.User{}
+	user.Email, user.Password = request.Email, request.Password
 
 	repo := &repo.UserRepo{Db: db}
 

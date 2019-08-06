@@ -13,13 +13,6 @@ type UserRepo struct {
 	Db *gorm.DB
 }
 
-//EmailExistError struct
-type EmailExistError struct{}
-
-func (*EmailExistError) Error() string {
-	return "email exists"
-}
-
 //Create New User
 func (u *UserRepo) Create(user *model.User) error {
 	//validate struct
@@ -39,13 +32,6 @@ func (u *UserRepo) Create(user *model.User) error {
 	return err
 }
 
-//EmailNotExistsError error email not exsist
-type EmailNotExistsError struct{}
-
-func (*EmailNotExistsError) Error() string {
-	return "email not exists"
-}
-
 //FindByEmail find user by email
 func (u *UserRepo) FindByEmail(email string) (*model.User, error) {
 	user := model.User{}
@@ -60,12 +46,6 @@ func (u *UserRepo) FindByEmail(email string) (*model.User, error) {
 	}
 
 	return &user, nil
-}
-
-type PasswordError struct{}
-
-func (*PasswordError) Error() string {
-	return "Password does not match"
 }
 
 //Login user

@@ -50,6 +50,9 @@ func ConnectDB() (db *gorm.DB, err error) {
 		config.DB.Name,
 		config.DB.Password)
 	db, err = gorm.Open(config.DB.Dialect, dbURI)
+	if os.Getenv("ENV") == "prod" {
+		db.LogMode(false)
+	}
 
 	return db, err
 }
